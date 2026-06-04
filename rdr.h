@@ -14,6 +14,19 @@ typedef struct rdr_tool_s {
   char * json;
 } rdr_tool_t;
 
+typedef struct rdr_tool_call_s {
+  const char * id;
+  const char * name;
+  const char * args;
+} rdr_tool_call_t;
+typedef struct rdr_msg_s {
+  const char * role;
+  const char * call;
+  const char * name;
+  const char * cont;
+  rdr_tool_call_t calls[10];
+} rdr_msg_t;
+
 rdr_tool_t rdr_tools[] = {
   {
     .name = "view_local_file",
@@ -28,25 +41,28 @@ rdr_tool_t rdr_tools[] = {
   {}
 };
 
-const char * rdr_msgs = " \
-    {\"role\": \"user\", \"content\": \"I want to find dead code in the current repository\"}, \
-    { \"role\": \"assistant\",  \
-      \"tool_calls\": [{ \
-        \"id\": \"chatcmpl-tool-970c946da77d4697851ec2343f21c77d\", \
-        \"type\": \"function\", \
-        \"function\": { \
-          \"name\": \"view_local_file\", \
-          \"arguments\": \"{\\\"path\\\": \\\".\\\"}\" \
-        } \
-      } \
-    ]}, \
-    {\"role\": \"assistant\", \"content\": \"Let me start by exploring the repository structure to understand the codebase.\" }, \
-    { \"role\": \"tool\", \
-      \"tool_call_id\": \"chatcmpl-tool-970c946da77d4697851ec2343f21c77d\",  \
-      \"name\": \"view_local_file\", \
-      \"content\": \"main.c\\nmicroui.h\" \
-    } \
-";
+rdr_msg_t rdr_msgs[] = {
+  {
+    .role = "user",
+    .cont = "I want to find dead code in the current repository",
+  }, {
+    .role = "assistant",
+    .calls = {{
+      .id = "chatcmpl-tool-970c946da77d4697851ec2343f21c77d",
+      .name = "view_local_file",
+      .args = "{\\\"path\\\":\\\".\\\"}",
+    }},
+  }, {
+    .role = "assistant",
+    .cont = "Let me start by exploring the repository structure to understand the codebase.",
+  }, {
+    .role = "tool",
+    .call = "chatcmpl-tool-970c946da77d4697851ec2343f21c77d",
+    .name = "view_local_file",
+    .cont = "main.c\\nmicroui.h",
+  }, {
+  }
+};
 
 char * rdr_txt;
 char * rdr_end;
@@ -76,6 +92,10 @@ void rdr_sb_cat_kv(const char * k, const char * v) {
   rdr_sb_cat_k(k);
   rdr_sb_cat_str(v);
 }
+void rdr_sb_cat_kv_comma(const char * k, const char * v) {
+  rdr_sb_cat_kv(k, v);
+  rdr_sb_cat(",");
+}
 
 void rdr_reset() {
   if (!rdr_txt) {
@@ -85,31 +105,22 @@ void rdr_reset() {
   rdr_ptr = rdr_txt;
 
   rdr_sb_cat("{");
-  rdr_sb_cat_kv("model", "deepseek-v4-pro");
-  rdr_sb_cat(",");
-  rdr_sb_cat_k("stream");
-  rdr_sb_cat("true");
-  rdr_sb_cat(",");
-  rdr_sb_cat_k("max_tokens");
-  rdr_sb_cat("10240");
-  rdr_sb_cat(",");
+  rdr_sb_cat_kv_comma("model", "deepseek-v4-pro");
+  rdr_sb_cat_k("stream");     rdr_sb_cat("true");  rdr_sb_cat(",");
+  rdr_sb_cat_k("max_tokens"); rdr_sb_cat("10240"); rdr_sb_cat(",");
   rdr_sb_cat_k("tools");
   rdr_sb_cat("[");
 
   for (rdr_tool_t * t = rdr_tools; t->name; t++) {
     rdr_sb_cat("{"); {
-      rdr_sb_cat_kv("type", "function");
-      rdr_sb_cat(",");
+      rdr_sb_cat_kv_comma("type", "function");
       rdr_sb_cat_k("function");
       rdr_sb_cat("{"); {
-        rdr_sb_cat_kv("name", t->name);
-        rdr_sb_cat(",");
-        rdr_sb_cat_kv("description", t->desc);
-        rdr_sb_cat(",");
+        rdr_sb_cat_kv_comma("name", t->name);
+        rdr_sb_cat_kv_comma("description", t->desc);
         rdr_sb_cat_k("parameters");
         rdr_sb_cat("{"); {
-          rdr_sb_cat_kv("type", "object");
-          rdr_sb_cat(",");
+          rdr_sb_cat_kv_comma("type", "object");
           rdr_sb_cat_k("required");
           rdr_sb_cat("["); {
             for (const char ** r = t->reqs; *r; r++) {
@@ -125,8 +136,7 @@ void rdr_reset() {
               if (p != t->props) rdr_sb_cat(",");
               rdr_sb_cat_k(p->name);
               rdr_sb_cat("{"); {
-                rdr_sb_cat_kv("type", p->type);
-                rdr_sb_cat(",");
+                rdr_sb_cat_kv_comma("type", p->type);
                 rdr_sb_cat_kv("description", p->desc);
               }
               rdr_sb_cat("}");
@@ -145,7 +155,40 @@ void rdr_reset() {
   rdr_sb_cat(",");
   rdr_sb_cat_k("messages");
   rdr_sb_cat("[");
-  rdr_sb_cat(rdr_msgs);
+
+  for (rdr_msg_t * m = rdr_msgs; m->role; m++) {
+    if (m != rdr_msgs) rdr_sb_cat(",");
+    rdr_sb_cat("{"); {
+      if (m->calls->id) {
+        rdr_sb_cat_k("tool_calls");
+        rdr_sb_cat("["); {
+          for (rdr_tool_call_t * c = m->calls; c->name; c++) {
+            if (c != m->calls) rdr_sb_cat(",");
+            rdr_sb_cat("{"); {
+              rdr_sb_cat_kv_comma("id", c->id);
+              rdr_sb_cat_kv_comma("type", "function");
+              rdr_sb_cat_k("function");
+              rdr_sb_cat("{"); {
+                rdr_sb_cat_kv_comma("name", c->name);
+                rdr_sb_cat_kv("arguments", c->args);
+              }
+              rdr_sb_cat("}");
+            }
+            rdr_sb_cat("}");
+          }
+        }
+        rdr_sb_cat("]");
+        rdr_sb_cat(",");
+      }
+
+      if (m->call) rdr_sb_cat_kv_comma("tool_call_id", m->call);
+      if (m->name) rdr_sb_cat_kv_comma("name",         m->name);
+      if (m->cont) rdr_sb_cat_kv_comma("content",      m->cont);
+      rdr_sb_cat_kv("role", m->role);
+    }
+    rdr_sb_cat("}");
+  }
+
   rdr_sb_cat("]");
 
   rdr_sb_cat("}");
