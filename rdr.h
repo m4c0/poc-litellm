@@ -41,7 +41,7 @@ rdr_tool_t rdr_tools[] = {
   {}
 };
 
-rdr_msg_t rdr_msgs[] = {
+rdr_msg_t rdr_msgs[10000] = {
   {
     .role = "user",
     .cont = "I want to find dead code in the current repository",
