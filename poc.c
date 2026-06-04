@@ -219,6 +219,14 @@ static size_t wr(char * data, size_t sz, size_t n, void * ptr) {
   return n;
 }
 
+static size_t rd(char * data, size_t sz, size_t n, void * ptr) {
+  assert(sz == 1 && "Expecting libcurl to pass size=1 as documented");
+
+  int i;
+  for (i = 0; *post && i < n; i++, post++, data++) *data = *post;
+  return i;
+}
+
 int main(int argc, char ** argv) {
   if (argc != 3) {
     fprintf(stderr, "Usage: %s <domain-name> <api-key>\n\n", *argv);
@@ -233,8 +241,7 @@ int main(int argc, char ** argv) {
 
   curl_easy_setopt(curl, CURLOPT_URL, url);
   curl_easy_setopt(curl, CURLOPT_POST, 1L);
-  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post);
-  curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(post));
+  curl_easy_setopt(curl, CURLOPT_READFUNCTION, &rd);
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &wr);
   // curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
