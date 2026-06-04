@@ -4,9 +4,9 @@
 #include "json.h"
 #include "msg.h"
 
-static char json_buf[10240];
-static char * json_ptr;
-static msg_t * wrt_msg;
+char json_buf[10240];
+char * json_ptr;
+msg_t * wrt_msg;
 
 static struct json_value_s * find_element(struct json_object_s * obj, const char * el) {
   struct json_object_element_s * it = obj->start;

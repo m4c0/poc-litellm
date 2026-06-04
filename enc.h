@@ -4,9 +4,9 @@
 #include "msg.h"
 #include "tll.h"
 
-static char * enc_txt;
-static char * enc_ptr;
-static char * enc_end;
+char * enc_txt;
+char * enc_ptr;
+char * enc_end;
 
 void enc_sb_cat(const char * str) {
   strncat(enc_ptr, str, enc_end - enc_ptr);
@@ -127,5 +127,7 @@ void enc_reset() {
   enc_sb_cat("]");
 
   enc_sb_cat("}");
+
+  *enc_ptr = 0;
 }
 #endif
