@@ -144,7 +144,15 @@ static void pump(char c) {
     case fsm_done_4: chk(c, 'E'); fsm++; break;
     case fsm_done_5: chk(c, ']'); fsm++; break;
     case fsm_done_6: chk(c, '\n'); fsm++; break;
-    case fsm_done_7: chk(c, '\n'); fsm++; break;
+    case fsm_done_7: {
+      chk(c, '\n');
+      fsm++;
+
+      enc_reset();
+      puts(enc_txt);
+
+      break;
+    }
     case fsm_done_8: {
       assert(0 && "Unexpected data after [DONE]");
       break;
