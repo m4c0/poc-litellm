@@ -1,5 +1,6 @@
 #ifndef RDR_H
 #define RDR_H
+#include "msg.h"
 
 typedef struct rdr_tool_prop_s {
   const char * name;
@@ -14,19 +15,6 @@ typedef struct rdr_tool_s {
   char * json;
 } rdr_tool_t;
 
-typedef struct rdr_tool_call_s {
-  const char * id;
-  const char * name;
-  const char * args;
-} rdr_tool_call_t;
-typedef struct rdr_msg_s {
-  const char * role;
-  const char * call;
-  const char * name;
-  const char * cont;
-  rdr_tool_call_t calls[10];
-} rdr_msg_t;
-
 rdr_tool_t rdr_tools[] = {
   {
     .name = "view_local_file",
@@ -39,29 +27,6 @@ rdr_tool_t rdr_tools[] = {
     }},
   },
   {}
-};
-
-rdr_msg_t rdr_msgs[10000] = {
-  {
-    .role = "user",
-    .cont = "I want to find dead code in the current repository",
-  }, {
-    .role = "assistant",
-    .calls = {{
-      .id = "chatcmpl-tool-970c946da77d4697851ec2343f21c77d",
-      .name = "view_local_file",
-      .args = "{\\\"path\\\":\\\".\\\"}",
-    }},
-  }, {
-    .role = "assistant",
-    .cont = "Let me start by exploring the repository structure to understand the codebase.",
-  }, {
-    .role = "tool",
-    .call = "chatcmpl-tool-970c946da77d4697851ec2343f21c77d",
-    .name = "view_local_file",
-    .cont = "main.c\\nmicroui.h",
-  }, {
-  }
 };
 
 char * rdr_txt;
@@ -156,13 +121,13 @@ void rdr_reset() {
   rdr_sb_cat_k("messages");
   rdr_sb_cat("[");
 
-  for (rdr_msg_t * m = rdr_msgs; m->role; m++) {
-    if (m != rdr_msgs) rdr_sb_cat(",");
+  for (msg_t * m = msg_convo; m->role; m++) {
+    if (m != msg_convo) rdr_sb_cat(",");
     rdr_sb_cat("{"); {
       if (m->calls->id) {
         rdr_sb_cat_k("tool_calls");
         rdr_sb_cat("["); {
-          for (rdr_tool_call_t * c = m->calls; c->name; c++) {
+          for (msg_tool_call_t * c = m->calls; c->name; c++) {
             if (c != m->calls) rdr_sb_cat(",");
             rdr_sb_cat("{"); {
               rdr_sb_cat_kv_comma("id", c->id);
