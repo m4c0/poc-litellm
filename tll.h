@@ -32,8 +32,7 @@ tll_t * tll_find(const char * name) {
     if (0 != strcmp(name, t->name)) continue;
     return t;
   }
-  fprintf(stderr, "tool not found: %s\n", name);
-  exit(1);
+  return NULL;
 }
 
 #endif

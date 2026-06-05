@@ -25,6 +25,8 @@ int main(int argc, char ** argv) {
   if (0 == strcmp(fini, "tool_calls")) {
     for (msg_tool_call_t * c = wrt_msg->calls; c->id; c++) {
       tll_t * t = tll_find(c->name);
+      assert(t && "tool not found"); // discard message and try again?
+
       printf("%s %s %s %s\n", c->id, c->name, c->args, t->desc);
     }
     return 1;
