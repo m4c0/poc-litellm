@@ -28,7 +28,11 @@ int main(int argc, char ** argv) {
       assert(t && "tool not found"); // discard message and try again?
 
       ttl_args_t args = {0};
-      ttl_parse_args(t, c->args, &args);
+      int argc = ttl_parse_args(t, c->args, &args);
+
+      for (int i = 0; i < argc; i++) {
+        printf("%s %s\n", args.list[i].name, args.list[i].value);
+      }
 
       printf("%s %s %s %s\n", c->id, c->name, c->args, t->desc);
     }

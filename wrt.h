@@ -1,32 +1,16 @@
 #ifndef WRT_H
 #define WRT_H
 
-#include "json.h"
+#include "jsn.h"
 #include "msg.h"
 
 char json_buf[10240];
 char * json_ptr;
 msg_t * wrt_msg;
 
-static struct json_value_s * find_element(struct json_object_s * obj, const char * el) {
-  struct json_object_element_s * it = obj->start;
-  while (it) {
-    if (0 != strcmp(el, it->name->string)) {
-      it = it->next;
-      continue;
-    }
-    break;
-  }
-  return it ? it->value : NULL;
-}
-
 static json_array_element_t * to_arr(json_value_t * v) {
   json_array_t * arr = v ? json_value_as_array(v) : NULL;
   return arr ? arr->start : NULL;
-}
-static const char * to_str(struct json_value_s * v) {
-  struct json_string_s * str = v ? json_value_as_string(v) : NULL;
-  return str ? str->string : NULL;
 }
 
 static void wrt_esccat(char * dst, const char * src, int n) {
@@ -49,55 +33,53 @@ enum {
   rsn_output,
 } rsn = rsn_start;
 static void process_json() {
-  struct json_value_s * root = json_parse(json_buf, json_ptr - json_buf);
-  struct json_object_s * obj = json_value_as_object(root);
+  struct json_object_s * obj = jsn_parse_object(json_buf, json_ptr - json_buf);
   assert(obj && "Root value should be an object");
 
-  json_array_element_t * arr = to_arr(find_element(obj, "choices"));
+  json_array_element_t * arr = to_arr(jsn_find_element(obj, "choices"));
   assert(arr && "Expecting to have 'choices'");
 
   obj = json_value_as_object(arr->value);
   assert(obj && "First choice should be an object");
 
-  const char * str = to_str(find_element(obj, "finish_reason"));
+  const char * str = jsn_str(jsn_find_element(obj, "finish_reason"));
   if (str) {
     wrt_msg->fini = strdup(str);
     fprintf(stderr, "\nfinish reason: %s\n", str);
-    free(root);
     return;
   }
  
-  obj = json_value_as_object(find_element(obj, "delta"));
+  obj = json_value_as_object(jsn_find_element(obj, "delta"));
   assert(obj && "Delta should be an object");
 
-  arr = to_arr(find_element(obj, "tool_calls"));
+  arr = to_arr(jsn_find_element(obj, "tool_calls"));
   if (arr) {
     while (arr) {
       json_object_t * obj = json_value_as_object(arr->value);
       assert(obj && "Tool calls must be an object");
 
-      int idx = atoi(json_value_as_number(find_element(obj, "index"))->number);
+      int idx = atoi(json_value_as_number(jsn_find_element(obj, "index"))->number);
       assert(idx >= 0 && idx < 10);
       msg_tool_call_t * call = wrt_msg->calls + idx;
       if (!call->name) call->name = malloc(1024);
       if (!call->args) call->args = malloc(1024);
 
-      const char * id = to_str(find_element(obj, "id"));
+      const char * id = jsn_str(jsn_find_element(obj, "id"));
       if (id) call->id = strdup(id);
 
-      json_object_t * fn = json_value_as_object(find_element(obj, "function"));
+      json_object_t * fn = json_value_as_object(jsn_find_element(obj, "function"));
       if (fn) {
-        const char * name = to_str(find_element(fn, "name"));
+        const char * name = jsn_str(jsn_find_element(fn, "name"));
         if (name) wrt_esccat(call->name, name, 1024);
 
-        const char * args = to_str(find_element(fn, "arguments"));
+        const char * args = jsn_str(jsn_find_element(fn, "arguments"));
         if (args) wrt_esccat(call->args, args, 1024);
       }
       arr = arr->next;
     }
   }
 
-  str = to_str(find_element(obj, "reasoning_content"));
+  str = jsn_str(jsn_find_element(obj, "reasoning_content"));
   if (str) {
     if (rsn != rsn_reasoning) {
       fprintf(stderr, "\nTHINKING: ");
@@ -106,11 +88,10 @@ static void process_json() {
     fprintf(stderr, "%s", str);
     if (!wrt_msg->reas) wrt_msg->reas = malloc(10240);
     wrt_esccat(wrt_msg->reas, str, 10240);
-    free(root);
     return;
   }
 
-  str = to_str(find_element(obj, "content"));
+  str = jsn_str(jsn_find_element(obj, "content"));
   if (str) {
     if (rsn != rsn_output) {
       fprintf(stderr, "\nASSISTANT ");
@@ -119,11 +100,8 @@ static void process_json() {
     fprintf(stderr, "%s", str);
     if (!wrt_msg->cont) wrt_msg->cont = malloc(10240);
     wrt_esccat(wrt_msg->cont, str, 10240);
-    free(root);
     return;
   }
-
-  free(root);
 }
 
 enum {

@@ -1,7 +1,7 @@
 #ifndef TLL_H
 #define TLL_H
 
-#include "json.h"
+#include "jsn.h"
 
 typedef struct tll_arg_s {
   char * name;
@@ -44,11 +44,32 @@ tll_t * tll_find(const char * name) {
   return NULL;
 }
 
-void ttl_parse_args(tll_t * t, const char * str, ttl_args_t * args) {
+int ttl_parse_args(tll_t * t, char * str, ttl_args_t * args) {
   for (int i = 0; i < 10; i++) {
     if (args->list[i].name ) free(args->list[i].name );
     if (args->list[i].value) free(args->list[i].value);
   }
+
+  char * w = str;
+  for (char * r = str; *r; r++, w++) {
+    if (*r == '\\') {
+      assert(r[1] != 'u');
+      w--;
+      continue;
+    }
+    if (w != r) *w = *r;
+  }
+  *w = 0;
+
+  int i = 0;
+  json_object_t * root = jsn_parse_object(str, strlen(str));
+  assert(root && "invalid tool call args");
+  for (json_object_element_t * it = root->start; it; it = it->next) {
+    args->list[i].name  = strdup(it->name->string);
+    args->list[i].value = strdup(jsn_str(it->value));
+    assert(++i < 10);
+  }
+  return i;
 }
 
 #endif
