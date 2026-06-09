@@ -19,22 +19,7 @@ typedef struct msg_s {
 msg_t msg_convo[10000] = {
   {
     .role = "user",
-    .cont = "I want to find dead code in the current repository.",
-  }, {
-    .role = "assistant",
-    .calls = {{
-      .id = "chatcmpl-tool-970c946da77d4697851ec2343f21c77d",
-      .name = "view_local_file",
-      .args = "{\\\"path\\\":\\\".\\\"}",
-    }},
-  }, {
-    .role = "assistant",
-    .cont = "Let me start by exploring the repository structure to understand the codebase.",
-  }, {
-    .role = "tool",
-    .call = "chatcmpl-tool-970c946da77d4697851ec2343f21c77d",
-    .name = "view_local_file",
-    .cont = "main.c\\nmicroui.h",
+    .cont = "I want to find dead code in the current repository",
   }
 };
 

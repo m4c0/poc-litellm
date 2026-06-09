@@ -1,10 +1,42 @@
 #include <assert.h>
 #include <curl/curl.h>
+#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "crl.h"
 #include "jsn.h"
+
+static char * view_local_file(const char * path) {
+  if (0 == strcmp(path, ".")) {
+    DIR * d = opendir(".");
+    assert(d);
+
+    long dt = telldir(d);
+
+    int len = 0;
+    struct dirent * ent;
+    while ((ent = readdir(d))) {
+      if (ent->d_name[0] == '.') continue;
+      len += ent->d_namlen + 2; // slash+n
+    }
+    printf("%d\n", len);
+
+    char * buf = malloc(len + 1); // null-terminator
+    buf[0] = 0;
+    seekdir(d, dt);
+    while ((ent = readdir(d))) {
+      if (ent->d_name[0] == '.') continue;
+      if (*buf) strlcat(buf, "\\n", len + 1);
+      strlcat(buf, ent->d_name, len + 1);
+    }
+    printf("%s\n", buf);
+
+    closedir(d);
+    return buf;
+  }
+  return 0;
+}
 
 int main(int argc, char ** argv) {
   if (argc != 3) {
@@ -39,12 +71,11 @@ int main(int argc, char ** argv) {
       const char * path = jsn_str(jsn_find_element(root, "path"));
       assert(path && "missing 'path' in 'view_local_file' arguments");
 
-      assert(0 == strcmp(path, "."));
       *tool++ = (msg_t) {
         .role = "tool",
         .call = strdup(c->id),
         .name = "view_local_file",
-        .cont = "main.c\\nmicroui.h",
+        .cont = view_local_file(path),
       };
     }
   }
