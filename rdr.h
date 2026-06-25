@@ -2,6 +2,7 @@
 #define RDR_H
 
 #include "enc.h"
+#include "sql.h"
 
 char * rdr_ptr;
 static size_t rdr_fn(char * data, size_t sz, size_t n, void * ptr) {
@@ -15,10 +16,7 @@ static size_t rdr_fn(char * data, size_t sz, size_t n, void * ptr) {
 void rdr_reset() {
   enc_reset();
   rdr_ptr = enc_txt;
-
-  puts("");
-  puts(rdr_ptr);
-  puts("");
+  sql_update_convo(enc_txt);
 }
 
 #endif

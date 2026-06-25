@@ -1,3 +1,6 @@
+#include "sqlite3.c"
+#undef NDEBUG
+
 #include <assert.h>
 #include <curl/curl.h>
 #include <dirent.h>
@@ -124,4 +127,3 @@ int main(int argc, char ** argv) {
   crl_tkn = argv[2];
   while (cycle()) {}
 }
-
