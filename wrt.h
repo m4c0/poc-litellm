@@ -100,8 +100,8 @@ static void process_json() {
       rsn = rsn_output;
     }
     fprintf(stderr, "%s", str);
-    if (!wrt_msg->cont) wrt_msg->cont = malloc(10240);
-    wrt_esccat(wrt_msg->cont, str, 10240);
+    if (!wrt_msg->cont) wrt_msg->cont = calloc(102400, 1);
+    wrt_esccat(wrt_msg->cont, str, 102400);
     return;
   }
 }
