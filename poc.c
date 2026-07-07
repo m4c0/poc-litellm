@@ -75,15 +75,27 @@ static char * view_local_file(const char * path) {
 }
 
 static int read_msg(msg_t * msg) {
-  printf("> ");
-  fflush(stdout);
+  printf("> "); fflush(stdout);
 
-  char buf[1024];
-  if (!fgets(buf, 1024, stdin)) return 1;
+  char buf[10240];
+  if (!fgets(buf, 10240, stdin)) return 1;
+
+  if (0 == strcmp(buf, "a\n")) {
+    char line[1024];
+    char * ptr = buf;
+    while (1) {
+      printf(". "); fflush(stdout);
+
+      if (!fgets(line, 1024, stdin)) return 1;
+      if (0 == strcmp(line, ".\n")) break;
+      for (int i = 0; line[i] && i < 1024 && ptr < buf + 10240; i++) *ptr++ = line[i];
+    }
+    *ptr = 0;
+  }
 
   msg->role = "user";
-  msg->cont = calloc(1024, 1);
-  wrt_esccat(msg->cont, buf, 1024);
+  msg->cont = calloc(10240, 1);
+  wrt_esccat(msg->cont, buf, 10240);
   return 0;
 }
 static int cycle() {
