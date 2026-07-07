@@ -20,8 +20,9 @@ static void wrt_esccat(char * dst, const char * src, int n) {
 
   for (; *src && n > 0; n--, src++, dst++) {
     switch (*src) {
-      case '"':  assert(n > 1); *dst++ = '\\'; *dst = '"'; n--; break;
-      case '\n': assert(n > 1); *dst++ = '\\'; *dst = 'n'; n--; break;
+      case '"':  assert(n > 1); *dst++ = '\\'; *dst = '"';  n--; break;
+      case '\\': assert(n > 1); *dst++ = '\\'; *dst = '\\'; n--; break;
+      case '\n': assert(n > 1); *dst++ = '\\'; *dst = 'n';  n--; break;
       default:   *dst = *src; break;
     }
   }
