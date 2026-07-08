@@ -53,28 +53,7 @@ static char * tll_view_local_file(char * args) {
   assert(fread(buf, sz, 1, f));
   fclose(f);
 
-  int esz = 1;
-  for (const char * c = buf; *c; c++) {
-    switch (*c) {
-      case '"':
-      case '\\':
-      case '\n': esz += 2; break;
-      default:   esz += 1; break;
-    }
-  }
-  char * enc = malloc(esz);
-  for (char * c = buf, * e = enc; *c; c++, e++) {
-    switch (*c) {
-      case '"':  *e++ = '\\'; *e = '"';  break;
-      case '\n': *e++ = '\\'; *e = 'n';  break;
-      case '\\': *e++ = '\\'; *e = '\\'; break;
-      default:   *e = *c; break;
-    }
-  }
-  enc[esz - 1] = 0;
-
-  free(buf);
-  return enc;
+  return buf;
 }
 
 #endif

@@ -13,34 +13,12 @@ static json_array_element_t * to_arr(json_value_t * v) {
   return arr ? arr->start : NULL;
 }
 
-static int wrt_esclen(const char * src) {
-  int n = 0;
-  for (; *src; src++, n++) {
-    switch (*src) {
-      case '"':  n++; break;
-      case '\\': n++; break;
-      case '\n': n++; break;
-    }
-  }
-  return n;
-}
-static void wrt_esccat(char * dst, const char * src, int n) {
+static void wrt_cat(char * dst, const char * src, int n) {
   int len = strlen(dst);
   dst += len;
   n -= len;
 
-  int sln = wrt_esclen(src);
-  assert(sln < n);
-
-  for (; *src && n > 0; n--, src++, dst++) {
-    switch (*src) {
-      case '"':  assert(n > 1); *dst++ = '\\'; *dst = '"';  n--; break;
-      case '\\': assert(n > 1); *dst++ = '\\'; *dst = '\\'; n--; break;
-      case '\n': assert(n > 1); *dst++ = '\\'; *dst = 'n';  n--; break;
-      default:   *dst = *src; break;
-    }
-  }
-  assert(n);
+  for (; *src && n > 0; n--, src++, dst++) *dst = *src;
 }
 
 enum {
@@ -87,10 +65,10 @@ static void process_json() {
       json_object_t * fn = json_value_as_object(jsn_find_element(obj, "function"));
       if (fn) {
         const char * name = jsn_str(jsn_find_element(fn, "name"));
-        if (name) wrt_esccat(call->name, name, 1024);
+        if (name) wrt_cat(call->name, name, 1024);
 
         const char * args = jsn_str(jsn_find_element(fn, "arguments"));
-        if (args) wrt_esccat(call->args, args, 1024);
+        if (args) wrt_cat(call->args, args, 1024);
       }
       arr = arr->next;
     }
@@ -104,7 +82,7 @@ static void process_json() {
     }
     fprintf(stderr, "%s", str);
     if (!wrt_msg->reas) wrt_msg->reas = calloc(102400, 1);
-    wrt_esccat(wrt_msg->reas, str, 102400);
+    wrt_cat(wrt_msg->reas, str, 102400);
     return;
   }
 
@@ -116,7 +94,7 @@ static void process_json() {
     }
     fprintf(stderr, "%s", str);
     if (!wrt_msg->cont) wrt_msg->cont = calloc(102400, 1);
-    wrt_esccat(wrt_msg->cont, str, 102400);
+    wrt_cat(wrt_msg->cont, str, 102400);
     return;
   }
 }

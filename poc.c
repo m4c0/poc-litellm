@@ -42,8 +42,7 @@ static int read_msg(void) {
 
   msg_t * msg = msg_alloc();
   msg->role = "user";
-  msg->cont = calloc(10240, 1);
-  wrt_esccat(msg->cont, buf, 10240);
+  msg->cont = strdup(buf);
   return 0;
 }
 static int cycle(void) {
