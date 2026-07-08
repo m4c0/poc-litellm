@@ -130,9 +130,12 @@ enum {
 } fsm = fsm_data_0;
 
 static void chk(char c, char e) {
-  if (c == e) return;
-  fprintf(stderr, "ERROR: Expecting %c got %c\n\n", e, c);
-  exit(1);
+  if (c == e) {
+    fsm++;
+    return;
+  }
+  putc(c, stderr);
+  fsm = fsm_dump;
 }
 static void pump(char c) {
   switch (fsm) {
@@ -145,13 +148,12 @@ static void pump(char c) {
         break;
       }
       chk(c, 'd');
-      fsm++;
       break;
-    case fsm_data_1: chk(c, 'a'); fsm++; break;
-    case fsm_data_2: chk(c, 't'); fsm++; break;
-    case fsm_data_3: chk(c, 'a'); fsm++; break;
-    case fsm_data_4: chk(c, ':'); fsm++; break;
-    case fsm_data_5: chk(c, ' '); fsm++; break;
+    case fsm_data_1: chk(c, 'a'); break;
+    case fsm_data_2: chk(c, 't'); break;
+    case fsm_data_3: chk(c, 'a'); break;
+    case fsm_data_4: chk(c, ':'); break;
+    case fsm_data_5: chk(c, ' '); break;
 
     case fsm_done_0: {
       if (c == '{') {
@@ -160,17 +162,16 @@ static void pump(char c) {
         fsm = fsm_json;
       } else {
         chk(c, '[');
-        fsm++;
       }
       break;
     }
-    case fsm_done_1: chk(c, 'D'); fsm++; break;
-    case fsm_done_2: chk(c, 'O'); fsm++; break;
-    case fsm_done_3: chk(c, 'N'); fsm++; break;
-    case fsm_done_4: chk(c, 'E'); fsm++; break;
-    case fsm_done_5: chk(c, ']'); fsm++; break;
-    case fsm_done_6: chk(c, '\n'); fsm++; break;
-    case fsm_done_7: chk(c, '\n'); fsm++; break;
+    case fsm_done_1: chk(c, 'D'); break;
+    case fsm_done_2: chk(c, 'O'); break;
+    case fsm_done_3: chk(c, 'N'); break;
+    case fsm_done_4: chk(c, 'E'); break;
+    case fsm_done_5: chk(c, ']'); break;
+    case fsm_done_6: chk(c, '\n'); break;
+    case fsm_done_7: chk(c, '\n'); break;
     case fsm_done_8: {
       assert(0 && "Unexpected data after [DONE]");
       break;
