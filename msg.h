@@ -74,11 +74,11 @@ int msg_save(const char * name) {
   printf("saved in %s\n", name);
   return 0;
 }
-int msg_load(const char * name) {
+int msg_load(const char * name, int purge) {
   FILE * f = fopen(name, "rb"); 
   assert(f);
 
-  msg_purge();
+  if (purge) msg_purge();
 
   char buf[102400];
   msg_t * m = NULL;

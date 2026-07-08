@@ -17,7 +17,7 @@ static int read_msg(void) {
   if (0 == strlen(buf)) return read_msg();
 
   if (0 == strncmp(buf, "load ", 5)) {
-    if (msg_load(buf + 5)) printf("failed to load messages\n");
+    if (msg_load(buf + 5, 1)) printf("failed to load messages\n");
     return read_msg();
   }
   if (0 == strncmp(buf, "save ", 5)) {
@@ -81,6 +81,10 @@ void save_last_session(void) {
 }
 
 int main(int argc, char ** argv) {
+  for (int i = 1; i < argc; i++) {
+    msg_load(argv[i], 0);
+  }
+
   if (read_msg()) return 0;
 
   atexit(save_last_session);
