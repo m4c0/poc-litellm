@@ -18,14 +18,39 @@ typedef struct msg_s {
 
 msg_t msg_convo[10000] = {0};
 
+void msg_print_indented(FILE * f, const char * txt) {
+  while (txt && *txt) {
+    const char * c = strchr(txt, '\n');
+    int len = c ? (int)(c - txt) : strlen(txt);
+    fprintf(f, "  %.*s\n", (int)(c - txt), txt);
+    txt = c;
+  }
+}
+
 int msg_save(const char * name) {
-  printf("would save in %s\n", name);
+  FILE * f = fopen(name, "wb");
+  for (msg_t * m = msg_convo; m->role; m++) {
+    fprintf(f, "role %s\n", m->role);
+    if (m->call) fprintf(f, "call %s\n", m->call);
+    if (m->name) fprintf(f, "name %s\n", m->name);
+    if (m->fini) fprintf(f, "fini %s\n", m->fini);
+    if (m->cont) {
+      fprintf(f, "cont\n");
+      msg_print_indented(f, m->cont);
+    }
+    if (m->reas) {
+      fprintf(f, "reas\n");
+      msg_print_indented(f, m->reas);
+    }
+  }
+  fclose(f);
+
+  printf("saved in %s\n", name);
   return 0;
 }
 int msg_load(const char * name) {
   printf("would load from %s\n", name);
   return 0;
 }
-
 
 #endif
