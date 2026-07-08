@@ -27,7 +27,7 @@ void msg_print_indented(FILE * f, const char * txt) {
       continue;
     }
     int len = c ? (int)(c - txt) : strlen(txt);
-    fprintf(f, "  %.*s\n", (int)(c - txt), txt);
+    fprintf(f, "  %.*s\n", len, txt);
     txt = c;
   }
   fprintf(f, ".\n");
