@@ -58,12 +58,11 @@ static int cycle(void) {
     return 1;
   }
   if (0 == strcmp(fini, "tool_calls")) {
-    msg_t * tool = wrt_msg + 1;
     for (msg_tool_call_t * c = wrt_msg->calls; c && c->id; c++) {
       tll_t * t = tll_find(c->name);
       assert(t && "tool not found"); // discard message and try again?
 
-      *tool++ = (msg_t) {
+      *msg_alloc() = (msg_t) {
         .role = "tool",
         .call = strdup(c->id),
         .name = strdup(c->name),
