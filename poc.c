@@ -14,6 +14,8 @@ static int read_msg(msg_t * msg) {
   if (!fgets(buf, 10240, stdin)) return 1;
   buf[strlen(buf) - 1] = 0;
 
+  if (0 == strlen(buf)) return read_msg(msg);
+
   if (0 == strncmp(buf, "load ", 5)) {
     if (msg_load(buf + 5)) printf("failed to load messages\n");
     return read_msg(msg);
@@ -85,10 +87,11 @@ int main(int argc, char ** argv) {
     return 1;
   }
 
-  atexit(save_last_session);
-
   crl_host = argv[1];
   crl_tkn = argv[2];
-  read_msg(msg_convo);
+  if (read_msg(msg_convo)) return 0;
+
+  atexit(save_last_session);
+
   while (cycle()) {}
 }
