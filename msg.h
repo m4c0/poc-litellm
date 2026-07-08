@@ -124,6 +124,7 @@ int msg_load(const char * name, int purge) {
     strncpy(tgt, buf + 2, tln);
     tgt += len;
     tln -= len;
+    strncat(tgt++, "\n", tln--);
   }
   fclose(f);
 

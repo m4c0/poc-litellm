@@ -13,13 +13,15 @@ void enc_sb_cat(const char * str) {
 }
 void enc_sb_cat_str(const char * str) {
   enc_sb_cat("\"");
-  for (; *str && enc_end > enc_ptr + 1; str++, enc_ptr++) {
+  for (; *str && enc_end > enc_ptr + 1; str++) {
     switch (*str) {
-      case '\"': 
-      case '\\':
-      case '\n': *enc_ptr++ = '\\'; break;
+      case '\"': enc_sb_cat("\\\""); break;
+      case '\\': enc_sb_cat("\\\\"); break;
+      case '\n': enc_sb_cat("\\n" ); break;
+      case '\r': enc_sb_cat("\\r" ); break;
+      case '\t': enc_sb_cat("\\t" ); break;
+      default: *enc_ptr++ = *str; break;
     }
-    *enc_ptr = *str; 
   }
   enc_sb_cat("\"");
 }
