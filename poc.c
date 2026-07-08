@@ -47,7 +47,7 @@ static int cycle() {
   const char * fini = wrt_msg->fini;
 
   if (!fini) {
-    fputs("LLM ended without a concrete finish reason", stderr);
+    fprintf(stderr, "LLM ended without a concrete finish reason\n");
     return 0;
   }
   if (0 == strcmp(fini, "stop")) {
@@ -74,12 +74,18 @@ static int cycle() {
   }
 }
 
+void save_last_session(void) {
+  msg_save("/tmp/last_session");
+}
+
 int main(int argc, char ** argv) {
   if (argc != 3) {
     fprintf(stderr, "Usage: %s <domain-name> <api-key>\n\n", *argv);
     fprintf(stderr, "Example: %s litellm.mycompany.com \"$API_KEY\"\n\n", *argv);
     return 1;
   }
+
+  atexit(save_last_session);
 
   crl_host = argv[1];
   crl_tkn = argv[2];
