@@ -9,7 +9,7 @@ typedef struct tll_prop_s {
 typedef struct tll_s {
   const char * name;
   const char * desc;
-  char * (*func)(char *);
+  const char * (*func)(const char *);
   tll_prop_t props[10];
   const char * reqs[10];
 

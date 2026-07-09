@@ -75,6 +75,7 @@ static int cycle(void) {
         .role = "tool",
         .call = strdup(c->id),
         .name = strdup(c->name),
+        // expecting tools to return either a malloc'd string or a literal
         .cont = t->func(c->args),
       };
     }
