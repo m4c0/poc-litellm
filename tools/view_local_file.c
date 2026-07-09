@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include <limits.h>
 #include <stdio.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 static const char * exec(const char * args) {
@@ -44,18 +45,25 @@ static const char * exec(const char * args) {
 
   if (0 != strncmp(cwd, real, strlen(cwd))) return "Access outside current directory is not permitted.";
 
+  struct stat st;
+  if (0 != stat(path, &st)) return "File not found.";
+  if (st.st_mode & S_IFDIR) return "This is a directory.";
+
+  char * buf = malloc(st.st_size + 1);
+
   FILE * f = fopen(path, "rb");
   if (!f) return "Unknown file name";
-
-  fseek(f, 0, SEEK_END);
-  int sz = ftell(f);
-  char * buf = malloc(sz + 1);
-  assert(buf);
-  fseek(f, 0, SEEK_SET);
-  assert(fread(buf, sz, 1, f));
+  assert(fread(buf, st.st_size, 1, f));
   fclose(f);
 
-  buf[sz] = 0;
+  for (int i = 0; i < st.st_size; i++) {
+    if (buf[i] < 0x20 && buf[i] != '\n' && buf[i] != '\t' && buf[i] != '\r' && buf[i] != '\f') {
+      free(buf);
+      return "Binary file";
+    }
+  }
+
+  buf[st.st_size] = 0;
   return buf;
 }
 
