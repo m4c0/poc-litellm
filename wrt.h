@@ -13,6 +13,9 @@ static json_array_element_t * to_arr(json_value_t * v) {
   return arr ? arr->start : NULL;
 }
 
+static str_bld_t * wrt_cont;
+static str_bld_t * wrt_reas;
+
 static void wrt_cat(char * dst, const char * src, int n) {
   int len = strlen(dst);
   dst += len;
@@ -87,8 +90,7 @@ static void process_json() {
       rsn = rsn_reasoning;
     }
     fprintf(stderr, "%s", str);
-    if (!wrt_msg->reas) wrt_msg->reas = calloc(102400, 1);
-    wrt_cat(wrt_msg->reas, str, 102400);
+    str_bld_cat(&wrt_reas, str);
     return;
   }
 
@@ -99,8 +101,7 @@ static void process_json() {
       rsn = rsn_output;
     }
     fprintf(stderr, "%s", str);
-    if (!wrt_msg->cont) wrt_msg->cont = calloc(102400, 1);
-    wrt_cat(wrt_msg->cont, str, 102400);
+    str_bld_cat(&wrt_cont, str);
     return;
   }
 }
@@ -193,6 +194,14 @@ void wrt_reset() {
   wrt_msg->role = "assistant";
 
   fsm = fsm_data_0;
+}
+
+void wrt_flush() {
+  wrt_msg->cont = str_bld_flush(wrt_cont);
+  wrt_msg->reas = str_bld_flush(wrt_reas);
+
+  wrt_cont = NULL;
+  wrt_reas = NULL;
 }
 
 #endif

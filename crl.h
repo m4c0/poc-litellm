@@ -36,6 +36,8 @@ void crl_fetch() {
   curl_slist_free_all(hdrs);
 
   curl_easy_cleanup(curl);
+
+  wrt_flush();
 }
 
 #endif

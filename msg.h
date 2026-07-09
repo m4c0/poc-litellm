@@ -16,8 +16,8 @@ typedef struct msg_s {
   const char * call;
   const char * name;
   const char * fini;
-  char * cont;
-  char * reas;
+  const char * cont;
+  const char * reas;
   msg_tool_call_t * calls;
 
   struct msg_s * next;
