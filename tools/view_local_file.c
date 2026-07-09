@@ -2,7 +2,9 @@
 #include "../tll_data.h"
 
 #include <dirent.h>
+#include <limits.h>
 #include <stdio.h>
+#include <unistd.h>
 
 static const char * exec(const char * args) {
   char * json = jsn_decode(args);
@@ -44,8 +46,12 @@ static const char * exec(const char * args) {
   if (*path == '/' || *path == '\\')
     return "You cannot use absolute paths or paths starting with a '/'";
 
-  // TODO: check if relative path leaves root cage (ex: a/../../b)
-  for (const char * c = path; *c; c++) assert(*c != '/');
+  char cwd[PATH_MAX];
+  if (!getcwd(cwd, sizeof(cwd))) return "Tool failed to get CWD. Inform the user.";
+  char real[PATH_MAX];
+  if (!realpath(path, real)) return "Tool failed to resolve file. Inform the user.";
+
+  if (0 != strncmp(cwd, real, strlen(cwd))) return "Access outside current directory is not permitted.";
 
   FILE * f = fopen(path, "rb");
   if (!f) return "Unknown file name";
