@@ -6,8 +6,8 @@
 
 typedef struct msg_tool_call_s {
   const char * id;
-  char * name;
-  char * args;
+  const char * name;
+  const char * args;
 
   struct msg_tool_call_s * next;
 } msg_tool_call_t;
@@ -155,9 +155,8 @@ int msg_load(const char * name, int purge) {
       continue;
     }
     if (strcmp(buf, ".") == 0) {
-      *tgt = str_bld_flush(tst);
+      *tgt = str_bld_flush(&tst);
       tgt = NULL;
-      tst = NULL;
       continue;
     }
     if (strncmp(buf, "  ", 2) != 0) {

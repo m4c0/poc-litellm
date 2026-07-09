@@ -25,17 +25,17 @@ void str_bld_cat(str_bld_t ** t, const char * str) {
   it->next->str = strdup(str);
   it->next->len = strlen(str);
 }
-char * str_bld_flush(str_bld_t * t) {
-  if (!t) return NULL;
+char * str_bld_flush(str_bld_t ** t) {
+  if (!*t) return NULL;
 
   int len = 1;
-  for (str_bld_t * it = t; it; it = it->next) len += it->len;
+  for (str_bld_t * it = *t; it; it = it->next) len += it->len;
 
   char * str = malloc(len);
   str[len - 1] = 0;
 
   char * ptr = str;
-  str_bld_t * it = t;
+  str_bld_t * it = *t;
   while (it) {
     strcpy(ptr, it->str);
     ptr += it->len;
@@ -46,6 +46,7 @@ char * str_bld_flush(str_bld_t * t) {
     it = n;
   }
 
+  *t = NULL;
   return str;
 }
 

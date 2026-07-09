@@ -13,16 +13,12 @@ static json_array_element_t * to_arr(json_value_t * v) {
   return arr ? arr->start : NULL;
 }
 
+static const char * wrt_call_ids[1000];
+static str_bld_t * wrt_call_name[1000];
+static str_bld_t * wrt_call_args[1000];
+
 static str_bld_t * wrt_cont;
 static str_bld_t * wrt_reas;
-
-static void wrt_cat(char * dst, const char * src, int n) {
-  int len = strlen(dst);
-  dst += len;
-  n -= len;
-
-  for (; *src && n > 0; n--, src++, dst++) *dst = *src;
-}
 
 enum {
   rsn_start,
@@ -56,28 +52,18 @@ static void process_json() {
       assert(obj && "Tool calls must be an object");
 
       int idx = atoi(json_value_as_number(jsn_find_element(obj, "index"))->number);
-
-      msg_tool_call_t * call = wrt_msg->calls;
-      for (int i = 0; i <= idx; i++, call = call->next) {
-        if (!call) call = msg_alloc_call(wrt_msg);
-      }
-
-      call = wrt_msg->calls;
-      for (int i = 0; i < idx; i++, call = call->next) {}
-
-      if (!call->name) call->name = calloc(1024, 1);
-      if (!call->args) call->args = calloc(1024, 1);
+      assert(idx >= 0 && idx < 1000);
 
       const char * id = jsn_str(jsn_find_element(obj, "id"));
-      if (id) call->id = strdup(id);
+      if (id) wrt_call_ids[idx] = strdup(id);
 
       json_object_t * fn = json_value_as_object(jsn_find_element(obj, "function"));
       if (fn) {
         const char * name = jsn_str(jsn_find_element(fn, "name"));
-        if (name) wrt_cat(call->name, name, 1024);
+        if (name) str_bld_cat(wrt_call_name + idx, name);
 
         const char * args = jsn_str(jsn_find_element(fn, "arguments"));
-        if (args) wrt_cat(call->args, args, 1024);
+        if (args) str_bld_cat(wrt_call_args + idx, args);
       }
       arr = arr->next;
     }
@@ -197,8 +183,15 @@ void wrt_reset() {
 }
 
 void wrt_flush() {
-  wrt_msg->cont = str_bld_flush(wrt_cont);
-  wrt_msg->reas = str_bld_flush(wrt_reas);
+  for (int i = 0; i < 1000 && wrt_call_ids[i]; i++) {
+    *msg_alloc_call(wrt_msg) = (msg_tool_call_t) {
+      .id = wrt_call_ids[i],
+      .name = str_bld_flush(wrt_call_name + i),
+      .args = str_bld_flush(wrt_call_args + i),
+    };
+  }
+  wrt_msg->cont = str_bld_flush(&wrt_cont);
+  wrt_msg->reas = str_bld_flush(&wrt_reas);
 
   wrt_cont = NULL;
   wrt_reas = NULL;
