@@ -2,6 +2,8 @@
 #define JSN_H
 #include "json.h"
 
+#include <assert.h>
+
 static char *         jsn_last_decoded;
 static json_value_t * jsn_last_root;
 
@@ -24,12 +26,12 @@ static const char * jsn_str(json_value_t * v) {
   return str ? str->string : NULL;
 }
 
-static char * jsn_decode(char * str) {
+static char * jsn_decode(const char * str) {
   if (jsn_last_decoded) free(jsn_last_decoded);
 
   char * res = jsn_last_decoded = strdup(str);
   char * w = res;
-  for (char * r = str; *r; r++, w++) {
+  for (const char * r = str; *r; r++, w++) {
     if (*r == '\\') {
       assert(r[1] != 'u');
       w--;
