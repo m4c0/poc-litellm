@@ -18,6 +18,14 @@ static int read_msg(void) {
 
   if (0 == strcmp(buf, ".")) return 0;
 
+  if (0 == strncmp(buf, "tool ", 5)) {
+    if (msg_head) {
+      printf("cannot change tools after conversation started\n");
+      return read_msg();
+    }
+    tll_load(buf + 5);
+    return read_msg();
+  }
   if (0 == strncmp(buf, "load ", 5)) {
     if (msg_load(buf + 5, 1)) printf("failed to load messages\n");
     return read_msg();
@@ -51,7 +59,7 @@ static int cycle(void) {
   const char * fini = wrt_msg->fini;
 
   if (!fini) {
-    fprintf(stderr, "LLM ended without a concrete finish reason\n");
+    fprintf(stderr, "\nLLM ended without a concrete finish reason\n");
     return 0;
   }
   if (0 == strcmp(fini, "stop")) {
@@ -67,6 +75,7 @@ static int cycle(void) {
         .role = "tool",
         .call = strdup(c->id),
         .name = strdup(c->name),
+        // expecting tools to return either a malloc'd string or a literal
         .cont = t->func(c->args),
       };
     }
@@ -91,4 +100,6 @@ int main(int argc, char ** argv) {
   atexit(save_last_session);
 
   while (cycle()) {}
+
+  tll_purge();
 }

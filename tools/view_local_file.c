@@ -1,8 +1,10 @@
-#ifndef TLL_VIEW_LOCAL_FILE_H
-#define TLL_VIEW_LOCAL_FILE_H
-#include "jsn.h"
+#include "../jsn.h"
+#include "../tll_data.h"
 
-static char * tll_view_local_file(char * args) {
+#include <dirent.h>
+#include <stdio.h>
+
+static const char * exec(const char * args) {
   char * json = jsn_decode(args);
 
   json_object_t * root = jsn_parse_object(json, strlen(json));
@@ -15,7 +17,7 @@ static char * tll_view_local_file(char * args) {
 
   if (0 == strcmp(path, ".")) {
     DIR * d = opendir(".");
-    assert(d);
+    if (!d) return "listing files is not available. Try something else";
 
     long dt = telldir(d);
 
@@ -39,7 +41,10 @@ static char * tll_view_local_file(char * args) {
     return buf;
   }
 
-  assert(*path != '/');
+  if (*path == '/' || *path == '\\')
+    return "You cannot use absolute paths or paths starting with a '/'";
+
+  // TODO: check if relative path leaves root cage (ex: a/../../b)
   for (const char * c = path; *c; c++) assert(*c != '/');
 
   FILE * f = fopen(path, "rb");
@@ -56,4 +61,15 @@ static char * tll_view_local_file(char * args) {
   return buf;
 }
 
-#endif
+void dudubot_tool(tll_t * t) {
+  *t = (tll_t) {
+    .desc = "Reads the text contents of a file relative to the workspace directory.",
+    .func = exec,
+    .reqs = { "path" },
+    .props = {{
+      .name = "path",
+      .type = "string",
+      .desc = "The relative file path to read (e.g. 'src/index.js')",
+    }},
+  };
+}
