@@ -2,6 +2,7 @@
 #define ENC_H
 
 #include "msg.h"
+#include "utl.h"
 #include "tll.h"
 
 char * enc_txt;
@@ -38,6 +39,7 @@ void enc_sb_cat_kv_comma(const char * k, const char * v) {
   enc_sb_cat(",");
 }
 
+const char * enc_model;
 void enc_reset() {
   if (!enc_txt) {
     enc_txt = malloc(1024000);
@@ -45,8 +47,10 @@ void enc_reset() {
   }
   enc_ptr = enc_txt;
 
+  if (!enc_model) enc_model = utl_env("DUDUBOT_MODEL", "deepseek-v4-flash");
+
   enc_sb_cat("{");
-  enc_sb_cat_kv_comma("model", "deepseek-v4-flash");
+  enc_sb_cat_kv_comma("model", enc_model);
   enc_sb_cat_k("stream");     enc_sb_cat("true");  enc_sb_cat(",");
   enc_sb_cat_k("max_tokens"); enc_sb_cat("10240"); enc_sb_cat(",");
   enc_sb_cat_k("tools");
