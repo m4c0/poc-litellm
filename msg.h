@@ -1,6 +1,7 @@
 #ifndef MSG_H
 #define MSG_H
 
+#include "str.h"
 #include "tll.h"
 
 typedef struct msg_tool_call_s {
@@ -92,8 +93,8 @@ int msg_load(const char * name, int purge) {
   char buf[102400];
   msg_t * m = NULL;
   msg_tool_call_t * t = NULL;
-  char * tgt = NULL;
-  unsigned tln = 0;
+  const char ** tgt = NULL;
+  str_bld_t * tst = NULL;
   while (fgets(buf, sizeof(buf), f)) {
     buf[strlen(buf) - 1] = 0;
 
@@ -107,15 +108,15 @@ int msg_load(const char * name, int purge) {
       m = msg_alloc();
       m->role = strdup(buf + 5);
       t = NULL;
-      tgt = NULL;
+      assert(!tgt);
       continue;
     }
-    if (strncmp(buf, "call ", 5) == 0) { tgt = NULL; m->call = strdup(buf + 5); continue; }
-    if (strncmp(buf, "name ", 5) == 0) { tgt = NULL; m->name = strdup(buf + 5); continue; }
-    if (strncmp(buf, "fini ", 5) == 0) { tgt = NULL; m->fini = strdup(buf + 5); continue; }
+    if (strncmp(buf, "call ", 5) == 0) { assert(!tgt); m->call = strdup(buf + 5); continue; }
+    if (strncmp(buf, "name ", 5) == 0) { assert(!tgt); m->name = strdup(buf + 5); continue; }
+    if (strncmp(buf, "fini ", 5) == 0) { assert(!tgt); m->fini = strdup(buf + 5); continue; }
 
-    if (strcmp(buf, "cont") == 0) { tln = 102400; tgt = m->cont = calloc(tln, 1); continue; }
-    if (strcmp(buf, "reas") == 0) { tln = 102400; tgt = m->reas = calloc(tln, 1); continue; }
+    if (strcmp(buf, "cont") == 0) { tgt = &m->cont; continue; }
+    if (strcmp(buf, "reas") == 0) { tgt = &m->reas; continue; }
 
     if (strncmp(buf, "calls ", 6) == 0) {
       if (!t) m->calls = t = calloc(sizeof(msg_tool_call_t), 10);
@@ -129,8 +130,7 @@ int msg_load(const char * name, int purge) {
       t->id = strdup(id);
       t->name = strdup(name);
 
-      tln = 102400;
-      tgt = t->args = calloc(tln, 1);
+      tgt = &t->args;
       continue;
     }
 
@@ -140,25 +140,23 @@ int msg_load(const char * name, int purge) {
       return 1;
     }
     if (strlen(buf) == 0) {
-      assert(tln);
-      strncat(tgt++, "\n", tln--);
+      assert(tgt);
+      str_bld_cat(&tst, "\n");
       continue;
     }
     if (strcmp(buf, ".") == 0) {
+      *tgt = str_bld_flush(tst);
       tgt = NULL;
-      tln = 0;
+      tst = NULL;
       continue;
     }
     if (strncmp(buf, "  ", 2) != 0) {
       fprintf(stderr, "invalid indentation: [%s]\n", buf);
       return 1;
     }
-    int len = strlen(buf) - 2;
-    assert(tln >= len + 1);
-    strncpy(tgt, buf + 2, tln);
-    tgt += len;
-    tln -= len;
-    strncat(tgt++, "\n", tln--);
+    assert(tgt);
+    str_bld_cat(&tst, buf + 2);
+    str_bld_cat(&tst, "\n");
   }
   fclose(f);
 
