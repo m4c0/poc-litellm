@@ -1,12 +1,9 @@
 #include "../jsn.h"
 #include "../str.h"
 #include "../tll_data.h"
+#include "../utl.h"
 
-#include <dirent.h>
-#include <limits.h>
 #include <stdio.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 static const char * exec(const char * json) {
   json_object_t * root = jsn_parse_object(json, strlen(json));
@@ -44,19 +41,8 @@ static const char * exec(const char * json) {
   }
 #endif
 
-  if (*path == '/' || *path == '\\')
-    return "You cannot use absolute paths or paths starting with a '/'";
-
-  char cwd[PATH_MAX];
-  if (!getcwd(cwd, sizeof(cwd))) return "Tool failed to get CWD. Inform the user.";
-  char real[PATH_MAX];
-  if (!realpath(path, real)) return "Tool failed to resolve file.";
-
-  if (0 != strncmp(cwd, real, strlen(cwd))) return "Access outside current directory is not permitted.";
-
-  struct stat st;
-  if (0 != stat(path, &st)) return "File not found.";
-  if (st.st_mode & S_IFDIR) return "This is a directory.";
+  const char * res = utl_safe_to_read(path);
+  if (res) return res;
 
   str_bld_t * str = NULL;
 
