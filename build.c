@@ -35,6 +35,7 @@ int main() {
   RUN("clang", "-g", "-o", "dudubot", "dudubot.c", "-lcurl", "-rpath", "@executable_path");
 
   TOOL("find_local_file");
+  TOOL("update_local_file");
   TOOL("view_local_file");
 
   return 0;
