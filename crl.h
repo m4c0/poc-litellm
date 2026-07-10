@@ -11,6 +11,8 @@ void crl_fetch() {
   rdr_reset();
   wrt_reset();
 
+  msg_save("/tmp/dudubot_session");
+
   CURL * curl = curl_easy_init();
   assert(curl);
 
@@ -38,6 +40,8 @@ void crl_fetch() {
   curl_easy_cleanup(curl);
 
   wrt_flush();
+
+  msg_save("/tmp/dudubot_session");
 }
 
 #endif
