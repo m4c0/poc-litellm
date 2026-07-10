@@ -60,22 +60,28 @@ static const char * exec(const char * args) {
   if (0 != stat(path, &st)) return "File not found.";
   if (st.st_mode & S_IFDIR) return "This is a directory.";
 
-  char * buf = malloc(st.st_size + 1);
+  str_bld_t * str = NULL;
+
+  char buf[10240];
 
   FILE * f = fopen(path, "rb");
   if (!f) return "Unknown file name";
-  assert(fread(buf, st.st_size, 1, f));
+  int line = 1;
+  while (fgets(buf, sizeof(buf), f)) {
+    int lcount = 0;
+    for (char * c = buf; *c; c++) {
+      if (*c < 0x20 && *c != '\n' && *c != '\t' && *c != '\r' && *c != '\f') return "Binary file";
+      if (*c == '\n') lcount++;
+    }
+    assert(lcount == 1);
+    char bb[20];
+    snprintf(bb, 20, "%d: ", line++);
+    str_bld_cat(&str, bb);
+    str_bld_cat(&str, buf);
+  }
   fclose(f);
 
-  for (int i = 0; i < st.st_size; i++) {
-    if (buf[i] < 0x20 && buf[i] != '\n' && buf[i] != '\t' && buf[i] != '\r' && buf[i] != '\f') {
-      free(buf);
-      return "Binary file";
-    }
-  }
-
-  buf[st.st_size] = 0;
-  return buf;
+  return str_bld_flush(&str);
 }
 
 void dudubot_tool(tll_t * t) {

@@ -27,7 +27,7 @@ tll_t * tll_alloc() {
 
 typedef void (*tll_fn_t)(tll_t * t);
 int tll_load(const char * name) {
-  // TODO: load relative to executable
+  // TODO: load relative to executable based on OS
   // TODO: handle extensions etc based on OS
   char buf[1024];
   snprintf(buf, sizeof(buf), "@rpath/lib%s.dylib", name);
