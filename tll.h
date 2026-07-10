@@ -39,7 +39,7 @@ int tll_load(const char * name) {
   }
 
   tll_fn_t fn = dlsym(dl, "dudubot_tool");
-  if (!dl) {
+  if (!fn) {
     fprintf(stderr, "tool library does not have 'dudubot_tool': %s\n", buf);
     return 1;
   }
