@@ -51,7 +51,7 @@ static void process_json() {
       json_object_t * obj = json_value_as_object(arr->value);
       assert(obj && "Tool calls must be an object");
 
-      int idx = atoi(json_value_as_number(jsn_find_element(obj, "index"))->number);
+      int idx = jsn_atoi(jsn_find_element(obj, "index"));
       assert(idx >= 0 && idx < 1000);
 
       const char * id = jsn_str(jsn_find_element(obj, "id"));

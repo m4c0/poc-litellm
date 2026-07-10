@@ -26,6 +26,10 @@ static const char * jsn_str(json_value_t * v) {
   return str ? str->string : NULL;
 }
 
+static int jsn_atoi(json_value_t * v) {
+  return atoi(json_value_as_number(v)->number);
+}
+
 static char * jsn_decode(const char * str) {
   if (jsn_last_decoded) free(jsn_last_decoded);
 
