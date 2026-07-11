@@ -1,12 +1,14 @@
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #ifdef _WIN32
+#  define _CRT_SECURE_NO_WARNINGS
+#  define _CRT_NONSTDC_NO_WARNINGS
 #  include <process.h>
 #else
 #  include <unistd.h>
 #endif
+
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 static int run(char ** args) {
   assert(args && args[0]);
@@ -43,7 +45,7 @@ static int run(char ** args) {
 #define TOOL(X) RUN("clang", "-shared", "-g", "-o", LIB X SO, "tools/"X".c")
 
 int main() {
-  RUN("clang", "-g", "-o", "dudubot", "dudubot.c", "-lcurl", "-rpath", "@executable_path");
+  RUN("clang", "-g", "-o", "dudubot", "dudubot.c", "-lcurl", "-rpath", "@executable_path", getenv("CFLAGS"));
 
   TOOL("find_local_file");
   TOOL("update_local_file");
