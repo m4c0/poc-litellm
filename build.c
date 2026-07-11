@@ -31,14 +31,16 @@ static int run(char ** args) {
 #define RUN(...) do { char * args[] = { __VA_ARGS__, 0 }; if (run(args)) return 1; } while (0)
 
 #ifdef __APPLE__
-#  define SO "dylib"
+#  define LIB "lib"
+#  define SO ".dylib"
 #elif _WIN32
-#  define SO "dll"
+#  define LIB ""
+#  define SO ".dll"
 #else
-#  define SO "so"
+#  define LIB "lib"
+#  define SO ".so"
 #endif
-
-#define TOOL(X) RUN("clang", "-shared", "-g", "-o", "lib"X"."SO, "tools/"X".c")
+#define TOOL(X) RUN("clang", "-shared", "-g", "-o", LIB X SO, "tools/"X".c")
 
 int main() {
   RUN("clang", "-g", "-o", "dudubot", "dudubot.c", "-lcurl", "-rpath", "@executable_path");
