@@ -47,7 +47,7 @@ static int run(char ** args) {
 int main() {
   RUN("clang", "-g", "-o", "dudubot", "dudubot.c", "-lcurl", "-rpath", "@executable_path",
 #ifdef _WIN32
-      "-D_CRT_SECURE_NO_WARNINGS", "-D_CRT_NONSTDC_NO_WARNINGS",
+      "-D_CRT_SECURE_NO_WARNINGS", "-D_CRT_NONSTDC_NO_WARNINGS", "-DWIN32_MEAN_AND_LEAN",
 #endif
       getenv("CFLAGS"));
 

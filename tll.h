@@ -1,9 +1,18 @@
 #ifndef TLL_H
 #define TLL_H
 
-#include "tll_data.h"
+#ifdef _WIN32
+#  include <windows.h>
+#  define DL_H HMODULE
+#  define dlclose FreeLibrary
+#  define dlopen(X, F) LoadLibrary(X)
+#  define dlsym(H, N) ((void *)GetProcAddress(H, N))
+#else
+#  include <dlfcn.h>
+#  define void *
+#endif
 
-#include <dlfcn.h>
+#include "tll_data.h"
 
 tll_t * tll_head;
 
