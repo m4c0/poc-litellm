@@ -67,3 +67,9 @@ another process.
 That would be similar to "forking" a session (like what some web-based bots
 provide) but it converts the whole memory into an human-editable file.
 
+## Note on Windows
+
+Code and experience is currently messy on Windows.
+
+We need `libcurl.dll.a` to compile and `libcurl-x64.dll` to run.
+
