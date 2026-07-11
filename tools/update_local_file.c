@@ -3,11 +3,9 @@
 #include "../str.h"
 #include "../tll_data.h"
 
-#include <dirent.h>
 #include <limits.h>
 #include <stdio.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 static const char * exec(const char * json) {
   json_object_t * root = jsn_parse_object(json, strlen(json));

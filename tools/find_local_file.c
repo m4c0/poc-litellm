@@ -1,36 +1,26 @@
+#include "../dir.h"
 #include "../jsn.h"
 #include "../str.h"
 #include "../tll_data.h"
 
-#include <dirent.h>
 #include <limits.h>
 #include <stdio.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 static void find(const char * path, const char * filename, str_bld_t ** out) {
-  DIR * dir = opendir(path);
-  if (!dir) return;
+  dir_t dir;
+  if (!dir_open(&dir, path)) return;
 
-  struct dirent * d;
-  while ((d = readdir(dir)) != NULL) {
-    if (d->d_name[0] == '.') continue;
-
-    char fullpath[PATH_MAX];
-    snprintf(fullpath, sizeof(fullpath), "%s/%s", path, d->d_name);
-
-    struct stat st;
-    if (stat(fullpath, &st) != 0) continue;
-
-    if (S_ISDIR(st.st_mode)) {
-      find(fullpath, filename, out);
-    } else if (strcmp(d->d_name, filename) == 0) {
-      str_bld_cat(out, fullpath + 2);
+  while (dir_read(&dir)) {
+    if (dir.is_dir) {
+      find(dir.fullpath, filename, out);
+    } else if (strcmp(dir.name, filename) == 0) {
+      str_bld_cat(out, dir.fullpath + 2);
       str_bld_cat(out, "\n");
     }
   }
 
-  closedir(dir);
+  dir_close(&dir);
 }
 
 static const char * exec(const char * json) {

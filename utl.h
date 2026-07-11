@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
 #  include <direct.h>
-#  define PATH_MAX MAX_PATH
+#  include <windows.h>
 #  define getcwd _getcwd
 #  define realpath(P, R) _fullpath(R, P, MAX_PATH)
 #else
