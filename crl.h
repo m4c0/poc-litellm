@@ -11,7 +11,9 @@ void crl_fetch() {
   rdr_reset();
   wrt_reset();
 
+#ifndef _WIN32
   msg_save("/tmp/dudubot_session");
+#endif
 
   CURL * curl = curl_easy_init();
   assert(curl);
@@ -41,7 +43,9 @@ void crl_fetch() {
 
   wrt_flush();
 
+#ifndef _WIN32
   msg_save("/tmp/dudubot_session");
+#endif
 }
 
 #endif

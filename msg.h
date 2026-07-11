@@ -67,6 +67,7 @@ void msg_print_indented(FILE * f, const char * txt) {
 
 int msg_save(const char * name) {
   FILE * f = fopen(name, "wb");
+  assert(f);
 
   for (tll_t * t = tll_head; t; t = t->next) fprintf(f, "tool %s\n", t->name);
   if (tll_head) fprintf(f, "\n");

@@ -88,7 +88,9 @@ static int cycle(void) {
 }
 
 static int end() {
+#ifndef _WIN32
   msg_save("/tmp/dudubot_last_session");
+#endif
   tll_purge();
   return 0;
 }
