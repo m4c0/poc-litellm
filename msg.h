@@ -94,18 +94,19 @@ int msg_save(const char * name) {
   printf("saved in %s\n", name);
   return 0;
 }
+static char msg_buf[102400];
 int msg_load(const char * name, int purge) {
   FILE * f = fopen(name, "rb"); 
   assert(f);
 
   if (purge) msg_purge();
 
-  char buf[102400];
+  char * buf = msg_buf;
   msg_t * m = NULL;
   msg_tool_call_t * t = NULL;
   const char ** tgt = NULL;
   str_bld_t * tst = NULL;
-  while (fgets(buf, sizeof(buf), f)) {
+  while (fgets(buf, sizeof(msg_buf), f)) {
     buf[strlen(buf) - 1] = 0;
 
     if (strncmp(buf, "tool ", 5) == 0) {

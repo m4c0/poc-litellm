@@ -12,7 +12,7 @@ typedef struct str_bld_s {
 
 void str_bld_cat(str_bld_t ** t, const char * str) {
   if (!*t) {
-    *t = malloc(sizeof(str_bld_t));
+    *t = calloc(sizeof(str_bld_t), 1);
     (*t)->str = strdup(str);
     (*t)->len = strlen(str);
     return;
@@ -21,7 +21,7 @@ void str_bld_cat(str_bld_t ** t, const char * str) {
   str_bld_t * it = *t;
   while (it->next) it = it->next;
 
-  it->next = malloc(sizeof(str_bld_t));
+  it->next = calloc(sizeof(str_bld_t), 1);
   it->next->str = strdup(str);
   it->next->len = strlen(str);
 }
