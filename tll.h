@@ -37,7 +37,11 @@ int tll_load(const char * name) {
   // TODO: load relative to executable based on OS
   // TODO: handle extensions etc based on OS
   char buf[1024];
+#if _WIN32
+  snprintf(buf, sizeof(buf), "%s.dll", name);
+#else
   snprintf(buf, sizeof(buf), "@rpath/lib%s.dylib", name);
+#endif
 
   void * dl = dlopen(buf, RTLD_LOCAL | RTLD_NOW);
   if (!dl) {
