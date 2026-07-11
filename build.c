@@ -45,7 +45,11 @@ static int run(char ** args) {
 #define TOOL(X) RUN("clang", "-shared", "-g", "-o", LIB X SO, "tools/"X".c")
 
 int main() {
-  RUN("clang", "-g", "-o", "dudubot", "dudubot.c", "-lcurl", "-rpath", "@executable_path", getenv("CFLAGS"));
+  RUN("clang", "-g", "-o", "dudubot", "dudubot.c", "-lcurl", "-rpath", "@executable_path",
+#ifdef _WIN32
+      "-D_CRT_SECURE_NO_WARNINGS", "-D_CRT_NONSTDC_NO_WARNINGS",
+#endif
+      getenv("CFLAGS"));
 
   TOOL("find_local_file");
   TOOL("update_local_file");
