@@ -54,8 +54,8 @@ static const char * exec(const char * json) {
   return "file updated";
 }
 
-EXPORT void dudubot_tool(tll_t * t) {
-  *t = (tll_t) {
+EXPORT void dudubot_tool(tll_api_t * api) {
+  *api->t = (tll_t) {
     .desc =
       "Removes a section of the text content from a file in the workspace "
       "directory. The text between lines numbered 'line_start' and 'line_end' "

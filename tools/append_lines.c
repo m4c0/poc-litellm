@@ -62,8 +62,8 @@ static const char * exec(const char * json) {
   return "file updated";
 }
 
-EXPORT void dudubot_tool(tll_t * t) {
-  *t = (tll_t) {
+EXPORT void dudubot_tool(tll_api_t * api) {
+  *api->t = (tll_t) {
     .desc =
       "Appends a new section of text in a file in the workspace directory. "
       "The new text will be appended after the line informed as parameter and "

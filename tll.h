@@ -36,7 +36,7 @@ tll_t * tll_alloc() {
   return m->next = calloc(sizeof(tll_t), 1);
 }
 
-typedef void (*tll_fn_t)(tll_t * t);
+typedef void (*tll_fn_t)(tll_api_t * t);
 int tll_load(const char * name) {
   // TODO: load relative to executable based on OS
   // TODO: handle extensions etc based on OS
@@ -59,13 +59,15 @@ int tll_load(const char * name) {
     return 1;
   }
 
-  tll_t * t = tll_alloc();
-  fn(t);
+  tll_api_t api = {
+    .t = tll_alloc(),
+  };
+  fn(&api);
 
   // paranoid standardisation
-  t->name = strdup(name);
-  t->dl = dl;
-  t->next = NULL;
+  api.t->name = strdup(name);
+  api.t->dl = dl;
+  api.t->next = NULL;
   fprintf(stderr, "loaded tool %s\n", name);
   return 0;
 }

@@ -17,4 +17,8 @@ typedef struct tll_s {
   struct tll_s * next;
 } tll_t;
 
+typedef struct tll_api_s {
+  tll_t * t;
+} tll_api_t;
+
 #endif

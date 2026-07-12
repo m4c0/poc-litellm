@@ -68,8 +68,8 @@ static const char * exec(const char * json) {
   return str_bld_flush(&str);
 }
 
-EXPORT void dudubot_tool(tll_t * t) {
-  *t = (tll_t) {
+EXPORT void dudubot_tool(tll_api_t * api) {
+  *api->t = (tll_t) {
     .desc = "Reads the text contents of a file relative to the workspace directory.",
     .func = exec,
     .reqs = { "path" },
