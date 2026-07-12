@@ -13,6 +13,9 @@
 
 typedef struct dir_s {
 #ifdef _WIN32
+  HANDLE h;
+  WIN32_FIND_DATA fd;
+  int first;
 #else
   DIR * dir;
   struct dirent * d;
@@ -28,8 +31,11 @@ int dir_open(dir_t * d, const char * path) {
   d->path = path;
 
 #ifdef _WIN32
-#error PLZ IMPLEMENT
-  return 0;
+  char pat[PATH_MAX];
+  snprintf(pat, PATH_MAX, "%s/*.*", path);
+  d->h = FindFirstFile(pat, &d->fd);
+  d->first = d->h != INVALID_HANDLE_VALUE;
+  return d->first;
 #else
   d->dir = opendir(path);
   return d->dir ? 1 : 0;
@@ -38,6 +44,14 @@ int dir_open(dir_t * d, const char * path) {
 
 int dir_read(dir_t * d) {
 #ifdef _WIN32
+  do {
+    if (d->first) d->first = 0;
+    else if (!FindNextFile(d->h, &d->fd)) return 0;
+  } while (d->fd.cFileName[0] == '.');
+
+  snprintf(d->fullpath, PATH_MAX, "%s/%s", d->path, d->fd.cFileName);
+  d->name = d->fd.cFileName;
+  d->is_dir = (d->fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 #else
   do {
     d->d = readdir(d->dir);
@@ -56,6 +70,7 @@ int dir_read(dir_t * d) {
 }
 void dir_close(dir_t * d) {
 #ifdef _WIN32
+  FindClose(d->h);
 #else
   closedir(d->dir);
 #endif
