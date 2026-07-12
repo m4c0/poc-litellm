@@ -104,4 +104,17 @@ tll_t * tll_find(const char * name) {
   return NULL;
 }
 
+const char * tll_exec(const char * id, const char * name, const char * args) {
+  tll_t * t = tll_find(name);
+  if (!t) return "Tool not found";
+
+  json_object_t * root = jsn_parse_object(args, strlen(args));
+  if (!root) return "Invalid tool call args";
+
+  tll_call_t ct = {
+    .json = root,
+  };
+  return t->func(ct);
+}
+
 #endif

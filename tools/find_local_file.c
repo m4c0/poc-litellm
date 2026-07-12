@@ -23,11 +23,8 @@ static void find(const char * path, const char * filename, str_bld_t ** out) {
   dir_close(&dir);
 }
 
-static const char * exec(const char * json) {
-  json_object_t * root = jsn_parse_object(json, strlen(json));
-  assert(root && "invalid tool call args");
-
-  const char * filename = jsn_str(jsn_find_element(root, "filename"));
+static const char * exec(tll_call_t t) {
+  const char * filename = jsn_str(jsn_find_element(t.json, "filename"));
   assert(filename && "missing 'filename' in 'find_local_file' arguments");
 
   fprintf(stderr, "find_local_file(%s)\n", filename);

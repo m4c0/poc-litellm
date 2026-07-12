@@ -5,17 +5,14 @@
 
 #include <stdio.h>
 
-static const char * exec(const char * json) {
-  json_object_t * root = jsn_parse_object(json, strlen(json));
-  assert(root && "invalid tool call args");
-
-  const char * path = jsn_str(jsn_find_element(root, "path"));
+static const char * exec(tll_call_t t) {
+  const char * path = jsn_str(jsn_find_element(t.json, "path"));
   assert(path && "missing 'path' in 'delete_lines' arguments");
 
-  int line_start = jsn_atoi(jsn_find_element(root, "line_start"));
+  int line_start = jsn_atoi(jsn_find_element(t.json, "line_start"));
   assert(line_start && "missing 'line_start' in 'delete_lines' arguments");
 
-  int line_end = jsn_atoi(jsn_find_element(root, "line_end"));
+  int line_end = jsn_atoi(jsn_find_element(t.json, "line_end"));
   assert(line_end && "missing 'line_end' in 'delete_lines' arguments");
 
   fprintf(stderr, "delete_lines(%s, %d, %d)\n", path, line_start, line_end);

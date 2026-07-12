@@ -5,11 +5,8 @@
 
 #include <stdio.h>
 
-static const char * exec(const char * json) {
-  json_object_t * root = jsn_parse_object(json, strlen(json));
-  assert(root && "invalid tool call args");
-
-  const char * path = jsn_str(jsn_find_element(root, "path"));
+static const char * exec(tll_call_t t) {
+  const char * path = jsn_str(jsn_find_element(t.json, "path"));
   assert(path && "missing 'path' in 'view_local_file' arguments");
 
   fprintf(stderr, "view_local_file(%s)\n", path);

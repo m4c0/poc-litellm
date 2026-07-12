@@ -10,10 +10,7 @@ int main(int argc, char ** argv) {
 
   if (tll_load(argv[1])) return 1;
 
-  tll_t * t = tll_find(argv[1]);
-  assert(t);
-
-  puts(t->func(argv[2]));
+  puts(tll_exec("test-tool", argv[1], argv[2]));
 
   return 0;
 }

@@ -72,15 +72,12 @@ static int cycle(void) {
   }
   if (0 == strcmp(fini, "tool_calls")) {
     for (msg_tool_call_t * c = wrt_msg->calls; c; c = c->next) {
-      tll_t * t = tll_find(c->name);
-      assert(t && "tool not found"); // discard message and try again?
-
       *msg_alloc() = (msg_t) {
         .role = "tool",
         .call = strdup(c->id),
         .name = strdup(c->name),
         // expecting tools to return either a malloc'd string or a literal
-        .cont = t->func(c->args),
+        .cont = tll_exec(c->id, c->name, c->args),
       };
     }
     return 1;

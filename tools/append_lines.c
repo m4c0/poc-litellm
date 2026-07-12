@@ -5,17 +5,14 @@
 
 #include <stdio.h>
 
-static const char * exec(const char * json) {
-  json_object_t * root = jsn_parse_object(json, strlen(json));
-  assert(root && "invalid tool call args");
-
-  const char * path = jsn_str(jsn_find_element(root, "path"));
+static const char * exec(tll_call_t t) {
+  const char * path = jsn_str(jsn_find_element(t.json, "path"));
   assert(path && "missing 'path' in 'append_lines' arguments");
 
-  int line_p = jsn_atoi(jsn_find_element(root, "line"));
+  int line_p = jsn_atoi(jsn_find_element(t.json, "line"));
   //assert(line_p && "missing 'line' in 'append_lines' arguments");
 
-  const char * text = jsn_str(jsn_find_element(root, "text"));
+  const char * text = jsn_str(jsn_find_element(t.json, "text"));
   assert(text && "missing 'text' in 'append_lines' arguments");
 
   fprintf(stderr, "append_lines(%s, %d, %s)\n", path, line_p, text);
