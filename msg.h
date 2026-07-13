@@ -97,6 +97,8 @@ int msg_load_file(FILE * f) {
   while (fgets(buf, sizeof(msg_buf), f)) {
     buf[strlen(buf) - 1] = 0;
 
+    if (strcmp(buf, "end") == 0) { assert(!tgt); break; }
+
     if (strncmp(buf, "tool ", 5) == 0) {
       assert(!msg_head && "tools can only be defined in an empty conversation");
       if (tll_load(buf + 5)) return 1;
