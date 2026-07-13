@@ -96,12 +96,7 @@ int msg_save(const char * name) {
   return 0;
 }
 static char msg_buf[102400];
-int msg_load(const char * name, int purge) {
-  FILE * f = fopen(name, "rb"); 
-  assert(f);
-
-  if (purge) msg_purge();
-
+int msg_load_file(FILE * f) {
   char * buf = msg_buf;
   msg_t * m = NULL;
   msg_tool_call_t * t = NULL;
@@ -170,7 +165,14 @@ int msg_load(const char * name, int purge) {
     str_bld_cat(&tst, "\n");
   }
   fclose(f);
+  return 0;
+}
 
+int msg_load(const char * name, int purge) {
+  FILE * f = fopen(name, "rb"); 
+  assert(f);
+  if (purge) msg_purge();
+  if (msg_load_file(f)) return 1;
   printf("loaded from %s\n", name);
   return 0;
 }
