@@ -84,7 +84,7 @@ int msg_save(const char * name) {
   }
   fclose(f);
 
-  printf("saved in %s\n", name);
+  fprintf(stderr, "saved in %s\n", name);
   return 0;
 }
 static char msg_buf[102400];
@@ -164,7 +164,7 @@ int msg_load(const char * name) {
   FILE * f = fopen(name, "rb"); 
   assert(f);
   if (msg_load_file(f)) return 1;
-  printf("loaded from %s\n", name);
+  fprintf(stderr, "loaded from %s\n", name);
   return 0;
 }
 

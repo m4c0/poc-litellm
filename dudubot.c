@@ -90,6 +90,7 @@ int main(int argc, char ** argv) {
     if (0 == strcmp(argv[i], "-")) {
       assert(i + 1 == argc && "stdin marker should be last");
       if (msg_load_file(stdin)) return 1;
+      wrt_quiet = 1;
       loop(NULL);
       return end();
     }
