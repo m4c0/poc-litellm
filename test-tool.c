@@ -8,6 +8,7 @@ int main(int argc, char ** argv) {
     return 1;
   }
 
+  tll_dudubot_exe = "./dudubot";
   if (tll_load(argv[1])) return 1;
 
   puts(tll_exec("test-tool", argv[1], argv[2]));
