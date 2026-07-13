@@ -23,10 +23,7 @@ static int read_msg(void) {
   if (0 == strcmp(buf, "quit")) return 1;
 
   if (0 == strncmp(buf, "tool ", 5)) {
-    if (msg_head) {
-      printf("cannot change tools after conversation started\n");
-      return read_msg();
-    }
+    if (msg_head) printf("WARNING: changing tools after conversation started nukes token caching\n");
     tll_load(buf + 5);
     return read_msg();
   }
@@ -88,9 +85,6 @@ static int cycle(void) {
 }
 
 static int end() {
-#ifndef _WIN32
-  msg_save("/tmp/dudubot_last_session");
-#endif
   tll_purge();
   return 0;
 }
