@@ -54,7 +54,7 @@ static int read_msg(void) {
   msg->cont = strdup(buf);
   return 0;
 }
-static int cycle(void) {
+static int loop(void) {
   crl_fetch();
 
   const char * fini = wrt_msg->fini;
@@ -63,10 +63,7 @@ static int cycle(void) {
     fprintf(stderr, "\nLLM ended without a concrete finish reason\n");
     return 0;
   }
-  if (0 == strcmp(fini, "stop")) {
-    if (read_msg()) return 0;
-    return 1;
-  }
+  if (0 == strcmp(fini, "stop")) return 1;
   if (0 == strcmp(fini, "tool_calls")) {
     for (msg_tool_call_t * c = wrt_msg->calls; c; c = c->next) {
       *msg_alloc() = (msg_t) {
@@ -77,11 +74,11 @@ static int cycle(void) {
         .cont = tll_exec(c->id, c->name, c->args),
       };
     }
-    return 1;
-  } else {
-    fprintf(stderr, "finish reason = %s\n", fini);
-    return 0;
+    return loop();
   }
+
+  fprintf(stderr, "finish reason = %s\n", fini);
+  return 0;
 }
 
 static int end() {
@@ -94,19 +91,19 @@ int main(int argc, char ** argv) {
     if (0 == strcmp(argv[i], "-")) {
       assert(i + 1 == argc && "stdin marker should be last");
       if (msg_load_file(stdin)) return 1;
-      while (cycle()) {}
+      loop();
       return end();
     }
     else if (0 == strcmp(argv[i], ".")) {
       assert(i + 1 == argc && "run marker should be last");
-      while (cycle()) {}
+      loop();
     }
     else if (msg_load(argv[i], 0)) return 1;
   }
 
-  if (read_msg()) return 0;
-
-  while (cycle()) {}
+  do {
+    if (read_msg()) return 0;
+  } while (loop());
 
   return end();
 }
