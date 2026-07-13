@@ -1,0 +1,4 @@
+tool append_lines
+tool delete_lines
+tool find_local_file
+tool view_local_file
