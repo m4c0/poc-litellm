@@ -97,8 +97,16 @@ static int end() {
 
 int main(int argc, char ** argv) {
   for (int i = 1; i < argc; i++) {
-    if (0 != strcmp(argv[i], ".")) msg_load(argv[i], 0);
-    else if (!cycle()) return end();
+    if (0 == strcmp(argv[i], "-")) {
+      assert(i + 1 == argc && "stdin marker should be last");
+      if (msg_load_file(stdin)) return 1;
+      while (cycle()) {}
+      return 0;
+    }
+    else if (0 == strcmp(argv[i], ".")) {
+      if (!cycle()) return end();
+    }
+    else if (msg_load(argv[i], 0)) return 1;
   }
 
   if (read_msg()) return 0;
