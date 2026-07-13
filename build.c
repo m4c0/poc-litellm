@@ -64,6 +64,7 @@ int main() {
   TOOL("append_lines");
   TOOL("delete_lines");
   TOOL("find_local_file");
+  TOOL("run_investigator");
   TOOL("view_local_file");
 
   return 0;
