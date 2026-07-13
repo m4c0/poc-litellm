@@ -34,7 +34,6 @@ void tll_init() {
   if (res) tll_dudubot_exe = strdup(addr.dli_fname);
 #endif
 
-  puts(tll_dudubot_exe);
   assert(tll_dudubot_exe && "tll_init failed to infer executable location");
 }
 
