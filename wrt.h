@@ -72,7 +72,7 @@ static void process_json() {
   str = jsn_str(jsn_find_element(obj, "reasoning_content"));
   if (str) {
     if (rsn != rsn_reasoning) {
-      fprintf(stderr, "\nTHINKING: ");
+      fprintf(stderr, "\n======== THINKING:\n");
       rsn = rsn_reasoning;
     }
     fprintf(stderr, "%s", str);
@@ -83,7 +83,7 @@ static void process_json() {
   str = jsn_str(jsn_find_element(obj, "content"));
   if (str) {
     if (rsn != rsn_output) {
-      fprintf(stderr, "\nASSISTANT ");
+      fprintf(stderr, "\n======== ASSISTANT:\n");
       rsn = rsn_output;
     }
     fprintf(stderr, "%s", str);
