@@ -54,8 +54,8 @@ static int read_msg(void) {
   msg->cont = strdup(buf);
   return 0;
 }
-static int loop(void) {
-  crl_fetch();
+static int loop(const char * session) {
+  crl_fetch(session);
 
   const char * fini = wrt_msg->fini;
 
@@ -74,7 +74,7 @@ static int loop(void) {
         .cont = tll_exec(c->id, c->name, c->args),
       };
     }
-    return loop();
+    return loop(session);
   }
 
   fprintf(stderr, "finish reason = %s\n", fini);
@@ -91,19 +91,21 @@ int main(int argc, char ** argv) {
     if (0 == strcmp(argv[i], "-")) {
       assert(i + 1 == argc && "stdin marker should be last");
       if (msg_load_file(stdin)) return 1;
-      loop();
+      loop(NULL);
       return end();
     }
     else if (0 == strcmp(argv[i], ".")) {
       assert(i + 1 == argc && "run marker should be last");
-      loop();
+      loop(NULL);
     }
     else if (msg_load(argv[i], 0)) return 1;
   }
 
+  char session[PATH_MAX];
+  snprintf(session, PATH_MAX, "%s/dudubot-%ld.chat", getenv("TMPDIR"), time(NULL));
   do {
     if (read_msg()) return 0;
-  } while (loop());
+  } while (loop(session));
 
   return end();
 }

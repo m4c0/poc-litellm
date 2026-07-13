@@ -7,13 +7,10 @@
 
 const char * crl_url;
 
-void crl_fetch() {
+void crl_fetch(const char * session) {
   rdr_reset();
   wrt_reset();
-
-#ifndef _WIN32
-  msg_save("/tmp/dudubot_session");
-#endif
+  if (session) msg_save(session);
 
   CURL * curl = curl_easy_init();
   assert(curl);
@@ -46,9 +43,7 @@ void crl_fetch() {
 
   wrt_flush();
 
-#ifndef _WIN32
-  msg_save("/tmp/dudubot_session");
-#endif
+  if (session) msg_save(session);
 }
 
 #endif
