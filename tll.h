@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "tll_data.h"
+#include "jsn.h"
 
 tll_t * tll_head;
 const char * tll_dudubot_exe;

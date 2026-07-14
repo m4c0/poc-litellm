@@ -1,10 +1,8 @@
 #ifndef TLL_DATA_H
 #define TLL_DATA_H
 
-#include "jsn.h"
-
 typedef struct tll_call_s {
-  json_object_t * json;
+  struct json_object_s * json;
 } tll_call_t;
 
 typedef struct tll_prop_s {
