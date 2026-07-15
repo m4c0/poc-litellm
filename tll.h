@@ -69,7 +69,7 @@ int tll_load(const char * name) {
 #elif __APPLE__
   snprintf(buf, sizeof(buf), "@rpath/lib%s.dylib", name);
 #else
-  snprintf(buf, sizeof(buf), "./lib%s.so", name);
+  snprintf(buf, sizeof(buf), "lib%s.so", name);
 #endif
 
   void * dl = dlopen(buf, RTLD_LOCAL | RTLD_NOW);
