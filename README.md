@@ -67,6 +67,15 @@ another process.
 That would be similar to "forking" a session (like what some web-based bots
 provide) but it converts the whole memory into an human-editable file.
 
+### Why all files (dyn-libs and chats) are relative to executable?
+
+Because it's the easiest way to consume them when you are running this from
+a source build, and it works in the same way for every platform. Unfortunately,
+each platform (Mac/Win/Lin) uses entirely different ways for native
+experiences.
+
+Better support will be added when time allows.
+
 ## Note on Windows
 
 Code and experience is currently messy on Windows.
