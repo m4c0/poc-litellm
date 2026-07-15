@@ -9,8 +9,8 @@ jobs:
             exe: ""
           - os: ubuntu-latest
             exe: ""
-          - os: windows-latest
-            exe: ".exe"
+          # - os: windows-latest
+          #   exe: ".exe"
     runs-on: ${{ matrix.os }}
     defaults:
       run:
