@@ -7,8 +7,13 @@ jobs:
         include:
           - os: macos-latest
             exe: ""
+            cc: "clang"
           - os: ubuntu-latest
             exe: ""
+            cc: "clang"
+          - os: ubuntu-latest
+            exe: ""
+            cc: "gcc"
           # - os: windows-latest
           #   exe: ".exe"
     runs-on: ${{ matrix.os }}
@@ -29,7 +34,7 @@ jobs:
         if: runner.os == 'Windows'
 
       - uses: actions/checkout@v6
-      - run: clang -Wall -g -o build${{ matrix.exe }} build.c
+      - run: ${{ matrix.cc }} -Wall -g -o build${{ matrix.exe }} build.c
       - run: ./build${{ matrix.exe }}
       - run: ./test-tool${{ matrix.exe }} 'view_local_file' '{"path":"build.c"}'
 
