@@ -60,8 +60,6 @@ typedef void (*tll_fn_t)(tll_api_t * t);
 int tll_load(const char * name) {
   if (!tll_dudubot_exe) tll_init();
 
-  // TODO: load relative to executable based on OS
-  // TODO: handle extensions etc based on OS
   // TODO: load from exe/tools/blah.so
   char buf[1024];
 #if _WIN32
