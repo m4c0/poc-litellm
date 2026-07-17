@@ -41,7 +41,8 @@ EXPORT void dudubot_tool(tll_api_t * api) {
   *api->t = (tll_t) {
     .desc =
       "Finds the path of a file in the current repository given a filename. "
-      "Example: searching for 'MyCode.java' would be the semantically equivalent of 'find . -name MyCode.java'. ",
+      "Example: searching for 'MyCode.java' would be the semantically equivalent of 'find . -name MyCode.java'. "
+      "Unlike 'find', this tool does not support 'globs', so a request like '*.txt' will fail.",
     .func = exec,
     .reqs = { "filename" },
     .props = {{
