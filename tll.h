@@ -27,7 +27,7 @@ void tll_init() {
 
 #if _WIN32
   char exe[PATH_MAX];
-  int len = GetModuleFilename(NULL, exe, PATH_MAX);
+  int len = GetModuleFileName(NULL, exe, PATH_MAX);
   if (len) tll_dudubot_exe = strdup(exe);
 #else
   Dl_info addr;

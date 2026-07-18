@@ -110,13 +110,13 @@ int main(int argc, char ** argv) {
 
   char * tmp = getenv("TMPDIR");
 #ifdef _WIN32
-  assert(tmp)
+  assert(tmp);
 #else
   if (!tmp) tmp = "/tmp";
 #endif
 
   char session[PATH_MAX];
-  snprintf(session, PATH_MAX, "%s/dudubot-%ld.chat", tmp, time(NULL));
+  snprintf(session, PATH_MAX, "%s/dudubot-%lld.chat", tmp, (long long)time(NULL));
   do {
     if (read_msg()) return 0;
   } while (loop(session));
