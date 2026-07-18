@@ -5,6 +5,11 @@
 
 #include <stdio.h>
 
+#ifdef _WIN32
+#  define popen _popen
+#  define pclose _pclose
+#endif
+
 static const char * dudubot_exe;
 
 static const char * exec(tll_call_t t) {
