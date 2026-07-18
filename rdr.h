@@ -12,7 +12,7 @@ static size_t rdr_fn(char * data, size_t sz, size_t n, void * ptr) {
   return i;
 }
 
-void rdr_reset() {
+static void rdr_reset() {
   enc_reset();
   rdr_ptr = enc_txt;
 }

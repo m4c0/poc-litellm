@@ -176,19 +176,19 @@ static void pump(char c) {
   }
 }
 
-size_t wrt_fn(char * data, size_t sz, size_t n, void * ptr) {
+static size_t wrt_fn(char * data, size_t sz, size_t n, void * ptr) {
   for (int i = 0; i < sz * n; i++) pump(data[i]);
   return n;
 }
 
-void wrt_reset() {
+static void wrt_reset() {
   wrt_msg = msg_alloc();
   wrt_msg->role = "assistant";
 
   fsm = fsm_data_0;
 }
 
-void wrt_flush() {
+static void wrt_flush() {
   for (int i = 0; i < 1000 && wrt_call_ids[i]; i++) {
     *msg_alloc_call(wrt_msg) = (msg_tool_call_t) {
       .id = wrt_call_ids[i],
