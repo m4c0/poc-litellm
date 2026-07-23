@@ -56,18 +56,32 @@ tll_t * tll_alloc() {
   return m->next = calloc(sizeof(tll_t), 1);
 }
 
-static void * tll__find_tool(const char * name) {
-  // TODO: load from exe/tools/blah.so
+__attribute__((format(printf, 1, 2)))
+static void * tll__try_load(const char * fmt, ...) {
   char buf[PATH_MAX];
-#if _WIN32
-  snprintf(buf, sizeof(buf), "%s.dll", name);
-#elif __APPLE__
-  snprintf(buf, sizeof(buf), "@rpath/lib%s.dylib", name);
-#else
-  snprintf(buf, sizeof(buf), "lib%s.so", name);
-#endif
+  va_list arg;
+  va_start(arg, fmt);
+  vsprintf(buf, fmt, arg);
+  va_end(arg);
 
   return dlopen(buf, RTLD_LOCAL | RTLD_NOW);
+}
+#define TLL__TRY_LOAD(...) { void * dl; if ((dl = tll__try_load(__VA_ARGS__)) != NULL) return dl; }
+
+static void * tll__find_tool(const char * name) {
+  const char * home = getenv("HOME");
+
+#if _WIN32
+  TLL__TRY_LOAD("%s.dll", name);
+#elif __APPLE__
+  TLL__TRY_LOAD("@rpath/lib%s.dylib", name);
+  if (home) TLL__TRY_LOAD("%s/dudubot/tools/lib%s.dylib", home, name);
+#else
+  TLL__TRY_LOAD("lib%s.so", name);
+  if (home) TLL__TRY_LOAD("%s/dudubot/tools/lib%s.so", home, name);
+#endif
+
+  return NULL;
 }
 
 typedef void (*tll_fn_t)(tll_api_t * t);
