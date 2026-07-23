@@ -56,10 +56,7 @@ tll_t * tll_alloc() {
   return m->next = calloc(sizeof(tll_t), 1);
 }
 
-typedef void (*tll_fn_t)(tll_api_t * t);
-int tll_load(const char * name) {
-  if (!tll_dudubot_exe) tll_init();
-
+static void * tll__find_tool(const char * name) {
   // TODO: load from exe/tools/blah.so
   char buf[PATH_MAX];
 #if _WIN32
@@ -70,15 +67,22 @@ int tll_load(const char * name) {
   snprintf(buf, sizeof(buf), "lib%s.so", name);
 #endif
 
-  void * dl = dlopen(buf, RTLD_LOCAL | RTLD_NOW);
+  return dlopen(buf, RTLD_LOCAL | RTLD_NOW);
+}
+
+typedef void (*tll_fn_t)(tll_api_t * t);
+int tll_load(const char * name) {
+  if (!tll_dudubot_exe) tll_init();
+
+  void * dl = tll__find_tool(name);
   if (!dl) {
-    fprintf(stderr, "could not load tool library named: %s\n", buf);
+    fprintf(stderr, "could not load tool library named: %s\n", name);
     return 1;
   }
 
   tll_fn_t fn = dlsym(dl, "dudubot_tool");
   if (!fn) {
-    fprintf(stderr, "tool library does not have 'dudubot_tool': %s\n", buf);
+    fprintf(stderr, "tool library does not have 'dudubot_tool': %s\n", name);
     return 1;
   }
 
